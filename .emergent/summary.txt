@@ -1,0 +1,128 @@
+<analysis>**original_problem_statement**: The user is developing a mobile game named COURRIER, simulating vintage flights. PRODUCT REQUIREMENTS include ensuring destinations spawn strictly on land, standardizing game maps using a vintage parchment style, redesigning the MISSIONS screen, fixing mechanical warning bugs, adding dynamic campaign logic (Europe/Scandinavia/Corsica/Sardegna/Afrique du Nord) with quadrant/sector-based navigation, persistent destinations, and specific cargo drop-off mechanics (post offices for mail cumul).
+
+**User's preferred language**: French (INSTRUCT next agent to respond in French only)
+
+**what currently exists?**: An Expo React Native game with 19 playable levels. Recent additions include Sardegna (3 vertical sectors) and Afrique du Nord (3 horizontal sectors). All maps use a cohesive vintage parchment style. A global  function handles land masking via custom bitmasks. UI features SVG-based vintage dashboards, animated flight paths, and freeplay modes with persistent high scores. 
+
+**Last working item**: 
+    - Last item agent was working: Fixing the overlapping destinations bug across ALL missions. The user is extremely frustrated (cela fait plus de 10 x que je le demande). The agent previously tried increasing the Euclidean  threshold (up to 0.22), but destinations are still visibly overlapping (e.g., a 2-mail badge hiding a 5-mail badge).
+    - Status: IN PROGRESS
+    - Agent Testing Done: N
+    - Which testing method agent to use? screenshot tool
+    - User Testing Done: N
+
+**All Pending/In progress Issue list**: 
+  Issue 1: Destinations visually overlapping across all missions (P0 - CRITICAL)
+     - Attempted fixes: Agent incrementally increased  in  generation functions (0.05 -> 0.12 -> 0.16 -> 0.22). This failed to solve the issue.
+     - Next debug checklist: 
+       - : Check the distance calculation logic in , , etc. 
+       - Validate if  passed to these functions actually contains all currently rendered points. If multiple options are generated in a loop, ensure the newly generated option is pushed to the local array checking distances for the next iteration.
+       - Consider the aspect ratio of the map vs. the screen and the fixed pixel size of the SVG badges. Euclidean distance in normalized coordinates (0-1) might not be enough if the SVG element is very wide (e.g., mail envelope + text). You might need bounding-box logic or a larger  vs .
+     - Why fix this issue and what will be achieved with the fix? The user cannot click on destinations if they overlap. The user is highly agitated by this recurring issue.
+     - Status: IN PROGRESS
+     - Is recurring issue? Y
+     - Should Test frontend/backend/both after fix? Frontend
+     - Blocked on other issue: None
+
+**In progress Task List**:
+  Task 1: Replace synthesized engine audio with real audio files (P2)
+     - Where to resume:  and .
+     - What will be achieved with this? Replaces synthesized sine-wave sounds with realistic  or  files.
+     - Status: NOT STARTED
+     - Should Test frontend/backend/both after fix? Frontend
+     - Blocked on something: None
+
+**Upcoming and Future Tasks**
+    Upcoming Tasks:
+    - P1: Implement specific rules, maps, and logic for Level 20.
+    Future Tasks:
+    - P2: Refactor  (currently > 4,800 lines) to split into smaller, manageable slices (state vs geometry vs generation).
+
+**Completed work in this session**
+- Fixed Corsica (Level 17) navigation arrows and refined maps to specific user crops (DONE)
+- Created Sardegna (Level 18) with 3 vertical sectors, fixed manual land masks, configured Europe 40 rules (DONE)
+- Created Afrique du Nord (Level 19) with 3 HORIZONTAL sectors, fixed double fuel deduction in turbulence (DONE)
+- Redesigned 'RÈGLES' () page to use a full hangar background and exact in-game SVG components for icons (DONE)
+- Updated Freeplay mode with start/end telegrams, custom background, colored star icons for modes (DONE)
+- Restricted all destinations to  (above windshield) and  (prevent right-edge cutoff) (DONE)
+- Fixed Tutorial UI bugs, including forcing intersection at step 4 and persistent ARRÊTER LE TUTO button (DONE)
+
+**Earlier issues found/mentioned but not fixed**
+   - None explicitly pending, except the massive destination overlap issue.
+
+**Known issue recurrence from previous fork**
+  - Issue recurrence in previous fork: Playwright testing tool cannot consistently click React Native Web  elements natively.
+  - Recurrence count: 6+
+  - Status: IN PROGRESS
+  - Note: Rely on  for visual verification or evaluate JS clicks/direct Zustand state modifications to bypass native interaction failures.
+  - Issue recurrence: Destination overlapping. Count: 10+.
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+- Frontend: Expo React Native (Web + Mobile)
+- State Management: 
+- UI: React Native SVG for map drawing, complex absolute positioning.
+- Math: Bezier curve calculations for flight paths mapping normalized space.
+- Masking: Custom 50x50 string arrays used as bitmasks to detect land/sea (0=sea, 1=land).
+
+**key DB schema**
+  - N/A (Frontend only)
+
+**changes in tech stack**
+  - None
+
+**All files of reference** 
+- : Core game logic, generation of points, and state.
+- : Renders the maps (handles composite vertical and horizontal shifts) and SVG elements.
+- : Holds manual/script-generated arrays for land detection.
+- : Game screen, holds the tutorial logic and real-time fuel animation logic.
+- : Completely rebuilt using SVG components.
+- : Updated product requirements.
+
+**Areas that need refactoring**: 
+-  exceeds 4,800 lines. The state and action definitions MUST be split into domain-specific slices in the future.
+
+**key api endpoints**
+- N/A
+
+**Critical Info for New Agent** 
+- **STRICTLY COMMUNICATE IN FRENCH WITH THE USER.**
+- **Immediate Action:** The user is highly agitated about overlapping destinations. Check the logic in  (e.g., , , ). The Euclidean distance check () might be bypassing previously generated points if the loops aren't passing the mutated array properly, OR the mathematical distance doesn't cover the wide horizontal space taken up by the mail envelope SVG badge. Fix this robustly before moving to Level 20.
+- When generating maps or composites, do NOT rely blindly on Python script output modifying React code. Always double-check that exports like  aren't accidentally truncated from .
+
+**documents and test reports created in this job** 
+- , 
+- 
+
+**Last 10 User Messages and any pending HUMAN messages** 
+1. *User*: Mission AFRIQUE DU NORD : supprimer MOROCCO, ALGERIA... (Agent removed text via Python, added counters).
+2. *User*: Mission AFRIQUE DU NORD : lorsque je clique sur le bureau de poste rien ne se passe... (Agent added afrique_nord to  switch).
+3. *User*: Pour TUTO : le cadre rouge indiquant le compteur MILES n'est pas centré... (Agent fixed positions).
+4. *User*: Pour TUTO : disposer le bouton Arrêter le TUTO au milieu en haut... (Agent fixed).
+5. *User*: Dans toutes les missions : éviter de superposer les destinations... (Agent increased  to 0.12).
+6. *User*: Dans toutes les missions : éviter de disposer des destinations sur le bord droit... (Agent capped  to 0.85).
+7. *User*: Dans les missions FORET AMAZONIENNE, ATLANTIQUE II... carburant doit diminuer en temps réel... (Agent removed double deduction in completeFlight).
+8. *User*: Pour les missions libres: afficher un télégramme indiquant COLLECTEZ UN MAXIMUM... (Agent added dynamic telegrams).
+9. *User*: Dans TUTO : forcer la trajectoire à croiser un tracé existant au 4ème mouvement. (Agent adjusted  logic).
+10. *User*: POur toutes les missions : les destinations ne doivent pas se chevaucher... cela fait plus de 10 x que je le demande. (Pending: The overlap is still occurring).
+
+**Project Health Check:**
+- Broken: Destination overlapping collision logic.
+- Mocked: Audio
+
+**3rd Party Integrations** 
+- OpenAI GPT-4o / Image Generation (GPT Image 1) — uses Emergent LLM Key
+
+**Testing status**
+  - Testing agent used after significant changes: NO
+  - Troubleshoot agent used after agent stuck in loop: NO
+  - Test files created: []
+  - Known regressions: None currently.
+
+**Credentials to test flow:**
+None required.
+
+**What agent forgot to execute**
+The agent increased Euclidean  repeatedly but failed to verify *why* the distance logic wasn't effectively stopping overlaps visually. The agent didn't account for the rectangular bounding box of the SVG component vs a simple circular radius check.</analysis>
