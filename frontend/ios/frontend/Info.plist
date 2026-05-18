@@ -28,7 +28,7 @@
         <key>CFBundleURLSchemes</key>
         <array>
           <string>frontend</string>
-          <string>com.anonymous.frontend</string>
+          <string>com.courrier.frontend</string>
         </array>
       </dict>
       <dict>

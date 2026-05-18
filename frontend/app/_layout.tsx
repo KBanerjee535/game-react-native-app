@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import React, { useCallback, useEffect } from 'react';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -67,6 +68,7 @@ export default function RootLayout() {
   return (
     <I18nProvider>
       <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+        <StatusBar hidden={true} translucent={true} />
         <Stack
           screenOptions={{
             headerShown: false,
