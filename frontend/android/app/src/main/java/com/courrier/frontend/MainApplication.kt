@@ -1,4 +1,5 @@
 package com.courrier.frontend
+import com.courrier.frontend.BuildConfig
 
 import android.app.Application
 import android.content.res.Configuration

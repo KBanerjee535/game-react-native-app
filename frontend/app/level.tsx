@@ -154,10 +154,10 @@ export default function LevelScreen() {
   };
 
   // === Logique de déblocage progressif des missions à débloquer ===
-  // EUROPE 20 et EUROPE 40 toujours débloquées.
+  // EUROPE 20 et EUROPE 30 toujours débloquées.
   // Les autres se débloquent quand la précédente (dans l'ordre LEVELS) est accomplie.
   const isLevelUnlocked = React.useCallback((level: LevelDef, index: number): boolean => {
-    if (level.id === 'europe_20' || level.id === 'europe_40') return true;
+    if (level.id === 'europe_20' || level.id === 'europe_30') return true;
     if (index === 0) return true;
     const prev = LEVELS[index - 1];
     if (!prev) return true;

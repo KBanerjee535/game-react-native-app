@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   Platform,
   Image,
+  Modal,
   useWindowDimensions,
 } from 'react-native';
 import Svg, { Circle, Line, Rect, Path, Text as SvgText } from 'react-native-svg';
@@ -60,6 +61,7 @@ export default function AeropostaleGame() {
     crashPosition,
     gibraltarMailCollected,
     triggerFlightIntersection,
+    triggeredFlightIntersections,
     triggerPlane2FlightIntersection,
     // Patagonie dual-plane
     plane2IsFlying,
@@ -97,6 +99,10 @@ export default function AeropostaleGame() {
   const [showHomeSettings, setShowHomeSettings] = useState(false);
   const [homeSoundEnabled, setHomeSoundEnabled] = useState(true);
   const [showAdModal, setShowAdModal] = useState(false);
+  const [showEuropePopup, setShowEuropePopup] = useState(false);
+  const [europePopupSeen, setEuropePopupSeen] = useState(false);
+  const [showIntersectionDamagePopup, setShowIntersectionDamagePopup] = useState(false);
+  const [intersectionDamagePopupSeen, setIntersectionDamagePopupSeen] = useState(false);
   const [missionWasStarted] = [gameStatus === 'idle' && currentPoint !== null];
   const [lastPlayedLevel, setLastPlayedLevel] = useState<typeof LEVELS[0] | null>(null);
   const [pendingNextLevel, setPendingNextLevel] = useState<typeof LEVELS[0] | null>(null);
@@ -124,13 +130,34 @@ export default function AeropostaleGame() {
   const tutorialTimerRef = useRef<NodeJS.Timeout | null>(null);
   const tutorialBlinkRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Set map aspect ratio for pixel-accurate intersection detection
-  useEffect(() => {
-    if (SCREEN_WIDTH > 0 && MAP_HEIGHT > 0) {
-      setMapAspectRatio(MAP_HEIGHT / SCREEN_WIDTH);
-    }
-  }, [SCREEN_WIDTH, MAP_HEIGHT]);
+  // Intersection popup control
+  const firstIntersectionPopupShownRef = useRef(false);
 
+  // Reset first intersection popup when mission starts
+  useEffect(() => {
+    if (gameStatus === 'playing') {
+      firstIntersectionPopupShownRef.current = false;
+    }
+  }, [gameStatus, currentLevelId]);
+
+  useEffect(() => {
+    const isEuropeLevel = ['europe_20', 'europe_30'].includes(currentLevelId);
+    if (gameStatus === 'playing' && isEuropeLevel && !europePopupSeen) {
+      setShowEuropePopup(true);
+    }
+  }, [gameStatus, currentLevelId, europePopupSeen]);
+
+  // useEffect(() => {
+  //   const isEuropeRouteMode = currentLevelId === 'europe_20' || freeplayMode === 'europe';
+  //   if (
+  //     !intersectionDamagePopupSeen &&
+  //     isEuropeRouteMode &&
+  //     gameStatus === 'playing' &&
+  //     triggeredFlightIntersections.length === 1
+  //   ) {
+  //     setShowIntersectionDamagePopup(true);
+  //   }
+  // }, [currentLevelId, freeplayMode, gameStatus, triggeredFlightIntersections.length, intersectionDamagePopupSeen]);
 
   // Tutorial blink effect (when highlight is active)
   useEffect(() => {
@@ -438,7 +465,25 @@ export default function AeropostaleGame() {
             }
             
             // Atomic trigger: checks + increments in one store action
-            triggerFlightIntersection(i);
+triggerFlightIntersection(i);
+
+// SHOW POPUP IMMEDIATELY ON FIRST INTERSECTION
+const isEuropeRouteMode =
+  currentLevelId === 'europe_20' ||
+  currentLevelId === 'europe_30';
+
+if (
+  isEuropeRouteMode &&
+  !tutorialMode &&
+  !intersectionDamagePopupSeen &&
+  !firstIntersectionPopupShownRef.current
+) {
+  firstIntersectionPopupShownRef.current = true;
+
+  requestAnimationFrame(() => {
+    setShowIntersectionDamagePopup(true);
+  });
+}
           }
         }
         
@@ -503,6 +548,24 @@ export default function AeropostaleGame() {
               return;
             }
             triggerPlane2FlightIntersection(i);
+
+            // SHOW POPUP IMMEDIATELY ON FIRST INTERSECTION
+            const isEuropeRouteMode =
+              currentLevelId === 'europe_20' ||
+              currentLevelId === 'europe_30';
+
+            if (
+              isEuropeRouteMode &&
+              !tutorialMode &&
+              !intersectionDamagePopupSeen &&
+              !firstIntersectionPopupShownRef.current
+            ) {
+              firstIntersectionPopupShownRef.current = true;
+
+              requestAnimationFrame(() => {
+                setShowIntersectionDamagePopup(true);
+              });
+            }
           }
         }
         
@@ -875,6 +938,31 @@ export default function AeropostaleGame() {
         </View>
       )}
 
+      <Modal visible={showIntersectionDamagePopup} transparent animationType="fade">
+        <Pressable
+          style={styles.modalBackdrop}
+          onPress={() => {
+            setShowIntersectionDamagePopup(false);
+            setIntersectionDamagePopupSeen(true);
+          }}
+        >
+          <View style={styles.modalCard}>
+            <Pressable
+              style={styles.modalCloseButton}
+              onPress={() => {
+                setShowIntersectionDamagePopup(false);
+                setIntersectionDamagePopupSeen(true);
+              }}
+            >
+              <MaterialCommunityIcons name="close" size={24} color="#FFFFFF" />
+            </Pressable>
+            <Text style={[styles.modalText, { fontSize: 16, color: '#FFFFFF' }]}>
+              {t('CROSS_EUROPE_MODAL_DESC')}
+            </Text>
+          </View>
+        </Pressable>
+      </Modal>
+
       {/* Game Over Modal - shows telegraph after explosion */}
       <GameOverModal
         visible={showTelegraph}
@@ -1101,6 +1189,63 @@ const styles = StyleSheet.create({
   countdownSubtext: {
     color: '#FFA0A0',
     fontSize: 11,
+    fontFamily: 'BigNoodleTitling',
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 340,
+    backgroundColor: '#081825',
+    borderRadius: 18,
+    padding: 24,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#4FC3F7',
+  },
+  modalTitle: {
+    color: '#FFFFFF',
+    fontSize: 22,
+    fontWeight: '900',
+    fontFamily: 'BigNoodleTitling',
+    marginTop: 12,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  modalCloseButton: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+  },
+  modalText: {
+    color: '#E5E5E5',
+    fontSize: 14,
+    lineHeight: 22,
+    textAlign: 'center',
+    fontFamily: 'BigNoodleTitling',
+  },
+  modalBtn: {
+    marginTop: 18,
+    backgroundColor: '#4FC3F7',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 28,
+  },
+  modalBtnText: {
+    color: '#031A2B',
+    fontSize: 15,
+    fontWeight: 'bold',
     fontFamily: 'BigNoodleTitling',
   },
 });

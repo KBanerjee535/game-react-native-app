@@ -151,6 +151,7 @@ const translations = {
     TAB_SUB_LIBRES: 'Collectez un maximum de courriers avec ces missions libres',
     TAB_SUB_COMPAGNIE: 'Gérez vos compagnies aériennes',
     TUTO: 'TUTO',
+    CROSS_EUROPE_MODAL_DESC: 'Votra avion a croisé une route existante. Cela cause des dommages a votre avion. Une lumière s\'est allumée sur votre tableau de bord. Attention lorsque les 4 lumières sont allumées, il ne vous reste plus qu\'une minute ou alors rendez-vous au hangar pour réparation.',
   },
   en: {
     COURRIER: 'COURRIER',
@@ -283,6 +284,7 @@ const translations = {
     TAB_SUB_LIBRES: 'Collect as many mails as possible in these free missions',
     TAB_SUB_COMPAGNIE: 'Manage your airline companies',
     TUTO: 'TUTO',
+    CROSS_EUROPE_MODAL_DESC: 'Your plane crossed an existing road. This is causing damage to your plane. A light has turned on on your dashboard. Be careful when all 4 lights are on, you only have one minute left or else go to the hangar for repairs.',
   },
 } as const;
 

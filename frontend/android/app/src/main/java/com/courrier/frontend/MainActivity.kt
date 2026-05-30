@@ -1,5 +1,6 @@
 package com.courrier.frontend
 import expo.modules.splashscreen.SplashScreenManager
+import com.courrier.frontend.BuildConfig
 
 import android.os.Build
 import android.os.Bundle
