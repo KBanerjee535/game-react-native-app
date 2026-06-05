@@ -21,13 +21,14 @@ import {
 const TEST_BANNER_AD_UNIT = 'ca-app-pub-3940256099942544/6300978111';
 
 // Replace this with your actual Android AdMob unit ID once approved
-const PRODUCTION_AD_UNIT = 'ca-app-pub-2187562362262001/5751352874';
+const PRODUCTION_ANDROID_AD_UNIT = 'ca-app-pub-2187562362262001/5751352874';
+const PRODUCTION_IOS_AD_UNIT = 'ca-app-pub-2187562362262001/5469652399';
 
 const adUnitId = __DEV__
   ? TEST_BANNER_AD_UNIT
-  : Platform.OS === 'android'
-    ? PRODUCTION_AD_UNIT
-    : undefined;
+    : Platform.OS === 'ios'
+    ? PRODUCTION_IOS_AD_UNIT
+    : PRODUCTION_ANDROID_AD_UNIT;
 
 
 interface AdModalProps {
@@ -41,19 +42,21 @@ export const AdModal: React.FC<AdModalProps> = ({ visible, onClose }) => {
 
   useEffect(() => {
     if (visible) {
-      // Auto-close after 5 seconds (or 8 seconds if ad is loading)
+      // Auto-close after 15 seconds
       const timer = setTimeout(() => {
         onClose();
-      }, adLoading ? 8000 : 5000);
+      }, 15000);
       return () => clearTimeout(timer);
     }
-  }, [visible, onClose, adLoading]);
+  }, [visible, onClose]);
 
   return (
     <Modal
       visible={visible}
       transparent
       animationType="fade"
+      presentationStyle="overFullScreen"
+      statusBarTranslucent={true}
       onRequestClose={onClose}
     >
       <SafeAreaView style={styles.container}>
@@ -67,7 +70,7 @@ export const AdModal: React.FC<AdModalProps> = ({ visible, onClose }) => {
           </View>
 
           {/* Google Ad Banner - Android Only */}
-          {Platform.OS === 'android' && adUnitId ? (
+          {adUnitId ? (
             <View style={styles.googleAdWrapper}>
               {adLoading && (
                 <View style={styles.loadingContainer}>
@@ -109,7 +112,7 @@ export const AdModal: React.FC<AdModalProps> = ({ visible, onClose }) => {
           ) : null}
 
           {/* CTA Button - Show for fallback content only */}
-          {(Platform.OS !== 'android' || adError) && !adError && (
+          {(adError) && (
             <Pressable style={styles.ctaButton}>
               <Text style={styles.ctaButtonText}>Learn More</Text>
             </Pressable>

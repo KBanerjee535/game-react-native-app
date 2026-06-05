@@ -107,13 +107,8 @@ export default function AeropostaleGame() {
   const [lastPlayedLevel, setLastPlayedLevel] = useState<typeof LEVELS[0] | null>(null);
   const [pendingNextLevel, setPendingNextLevel] = useState<typeof LEVELS[0] | null>(null);
 
-  // Initialize AdMob for replay ads (Android only)
-  useEffect(() => {
-    if (Platform.OS !== 'android') return;
-    // Ad will be created on demand
-  }, []);
-
   const [showCriticalPopup, setShowCriticalPopup] = useState(false);
+    const [pendingReplayAction, setPendingReplayAction] = useState<'none' | 'replay'>('none');
   const [displayFuel, setDisplayFuel] = useState(fuelLevel); // Carburant visuel progressif
   const flightAnimationRef = useRef<NodeJS.Timeout | null>(null);
   const countdownTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -615,16 +610,23 @@ if (
   }, [clearCrashTimers]);
 
   // Rejouer la même mission
+  // Rejouer la même mission - show ad first
   const handleReplayMission = useCallback(() => {
+    setPendingReplayAction('replay');
+    setShowTelegraph(false);
     setShowAdModal(true);
-    
-    // Replay after ad closes
-    const timer = setTimeout(() => {
+  }, []);
+
+  // Handle ad close - restart game
+  const handleAdModalClose = useCallback(() => {
+    setShowAdModal(false);
+    if (pendingReplayAction === 'replay') {
+      setPendingReplayAction('none');
       clearCrashTimers();
       setShowCrashExplosion(false);
       setShowTelegraph(false);
       setExplosionPhase(0);
-      
+    
       const currentFreeplay = useGameStore.getState().freeplayMode;
       resetGame();
       // Si on est en mode jeu libre, relancer le même mode
@@ -646,10 +648,8 @@ if (
           startGame();
         }
       }
-    }, 100);
-    
-    return () => clearTimeout(timer);
-  }, [clearCrashTimers, currentLevelId]);
+    }
+  }, [pendingReplayAction, clearCrashTimers, currentLevelId]);
 
   // Mission suivante - affiche le télégramme avant de démarrer
   const handleNextMission = useCallback(() => {
@@ -984,7 +984,7 @@ if (
       {/* Ad Modal - shows on REJOUER button click */}
       <AdModal
         visible={showAdModal}
-        onClose={() => setShowAdModal(false)}
+          onClose={handleAdModalClose}
       />
     </SafeAreaView>
   );

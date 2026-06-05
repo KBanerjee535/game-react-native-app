@@ -92,13 +92,10 @@ android {
         applicationId 'com.courrier.frontend'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 7
-        versionName "5.0.0"
+        versionCode 1
+        versionName "3.0.0"
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
-    }
-    buildFeatures {
-        buildConfig true
     }
     signingConfigs {
         debug {
@@ -106,14 +103,6 @@ android {
             storePassword 'android'
             keyAlias 'androiddebugkey'
             keyPassword 'android'
-        }
-        release {
-            if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
-                storeFile file('my-new-key.keystore')
-                storePassword 'android'
-                keyAlias 'my-updatedkey-alias'
-                keyPassword 'android'
-            }
         }
     }
     buildTypes {
@@ -123,15 +112,11 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.release
-
+            signingConfig signingConfigs.debug
             def enableShrinkResources = findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'false'
             shrinkResources enableShrinkResources.toBoolean()
-
             minifyEnabled enableMinifyInReleaseBuilds
-
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-
             def enablePngCrunchInRelease = findProperty('android.enablePngCrunchInReleaseBuilds') ?: 'true'
             crunchPngs enablePngCrunchInRelease.toBoolean()
         }

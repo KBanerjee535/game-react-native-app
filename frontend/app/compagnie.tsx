@@ -1109,7 +1109,7 @@ export default function CompagnieScreen() {
       </Modal>
 
       {/* Game over modal */}
-                        <Modal visible={gameOver === 'lost'} transparent={false} animationType="fade">
+                        <Modal visible={gameOver === 'lost' && !showAdModal} transparent={true} animationType="fade">
         <View style={{ flex: 1, backgroundColor: "#000000" }}>
           <Image
             source={require('../assets/images/compagnie-victory-bg.png')}

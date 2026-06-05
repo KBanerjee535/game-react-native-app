@@ -276,7 +276,7 @@ export const GameOverModal: React.FC<Props> = ({
   const isCampaignVictory = won && !freeplayMode;
 
   return (
-    <Modal visible={visible} transparent animationType="none">
+    <Modal visible={visible} transparent animationType="fade" presentationStyle="overFullScreen">
       <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
         {/* Image de fond - bureau vintage OU image de victoire selon le contexte */}
         <Image

@@ -15,6 +15,7 @@ import Svg, { Circle, Path, Text as SvgText, G } from 'react-native-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LAND_MASKS } from '../src/data/landMasks';
 import { useI18n } from '../src/i18n';
+import { AdModal } from '../src/components/AdModal';
 
 // Helper to translate dynamic locked-dest messages
 const translateLocked = (msg: string | null, t: (k: string) => string): string => {
@@ -241,6 +242,7 @@ export default function PacifikairScreen() {
   const [extendLineId, setExtendLineId] = useState<string | null>(null);
   const [extendEndpointId, setExtendEndpointId] = useState<string | null>(null);
   const [blinkTick, setBlinkTick] = useState(true);
+  const [showAdModal, setShowAdModal] = useState(false);
 
   const lastTickTime = useRef(Date.now());
   const lastDestSpawn = useRef(Date.now());
@@ -1078,7 +1080,7 @@ export default function PacifikairScreen() {
       </Modal>
 
       {/* Game over modal */}
-                        <Modal visible={gameOver === 'lost'} transparent={false} animationType="fade">
+                        <Modal visible={gameOver === 'lost'} transparent={true} animationType="fade">
         <View style={{ flex: 1, backgroundColor: "#000000" }}>
           <Image
             source={require('../assets/images/compagnie-victory-bg.png')}
@@ -1113,7 +1115,7 @@ export default function PacifikairScreen() {
             </View>
 
             <View style={styles.modalFullButtonsRow}>
-              <Pressable style={styles.modalFullBtn} onPress={() => router.replace('/pacifikair')}>
+              <Pressable style={styles.modalFullBtn} onPress={() => setShowAdModal(true)}>
                 <Text style={styles.modalFullBtnText}>{t('REJOUER')}</Text>
               </Pressable>
               {delivered >= 1000 && (
@@ -1128,6 +1130,13 @@ export default function PacifikairScreen() {
           </View>
         </View>
       </Modal>
+      <AdModal
+        visible={showAdModal}
+        onClose={() => {
+          setShowAdModal(false);
+          router.replace('/pacifikair');
+        }}
+      />
     </View>
   );
 }

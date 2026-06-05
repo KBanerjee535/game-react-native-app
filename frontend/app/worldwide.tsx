@@ -15,6 +15,7 @@ import Svg, { Circle, Path, Text as SvgText, G } from 'react-native-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LAND_MASKS } from '../src/data/landMasks';
 import { useI18n } from '../src/i18n';
+import { AdModal } from '../src/components/AdModal';
 
 const translateLocked = (msg: string | null, t: (k: string) => string): string => {
   if (!msg) return '';
@@ -299,6 +300,7 @@ export default function WorldwideScreen() {
   const [extendLineId, setExtendLineId] = useState<string | null>(null);
   const [extendEndpointId, setExtendEndpointId] = useState<string | null>(null);
   const [blinkTick, setBlinkTick] = useState(true);
+  const [showAdModal, setShowAdModal] = useState(false);
 
   const lastTickTime = useRef(Date.now());
   const mailNextTimes = useRef<Map<string, number>>(new Map());
@@ -1250,7 +1252,7 @@ export default function WorldwideScreen() {
         </Pressable>
       </Modal>
 
-                        <Modal visible={gameOver === 'lost'} transparent={false} animationType="fade">
+                        <Modal visible={gameOver === 'lost'} transparent={true} animationType="fade">
         <View style={{ flex: 1, backgroundColor: "#000000" }}>
           <Image
             source={require('../assets/images/compagnie-victory-bg.png')}
@@ -1271,7 +1273,7 @@ export default function WorldwideScreen() {
             </View>
 
             <View style={styles.modalFullButtonsRow}>
-              <Pressable style={styles.modalFullBtn} onPress={() => router.replace('/worldwide')}>
+              <Pressable style={styles.modalFullBtn} onPress={() => setShowAdModal(true)}>
                 <Text style={styles.modalFullBtnText}>{t('REJOUER')}</Text>
               </Pressable>
               <Pressable style={[styles.modalFullBtn, { backgroundColor: '#5A4838' }]} onPress={() => router.replace('/level')}>
@@ -1281,6 +1283,13 @@ export default function WorldwideScreen() {
           </View>
         </View>
       </Modal>
+      <AdModal
+        visible={showAdModal}
+        onClose={() => {
+          setShowAdModal(false);
+          router.replace('/worldwide');
+        }}
+      />
     </View>
   );
 }
