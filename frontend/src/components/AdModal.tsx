@@ -21,12 +21,10 @@ import {
 const TEST_BANNER_AD_UNIT = 'ca-app-pub-3940256099942544/6300978111';
 
 // Replace this with your actual Android AdMob unit ID once approved
-const PRODUCTION_ANDROID_AD_UNIT = 'ca-app-pub-2187562362262001/5751352874';
-const PRODUCTION_IOS_AD_UNIT = 'ca-app-pub-2187562362262001/5469652399';
+const PRODUCTION_ANDROID_AD_UNIT = 'ca-app-pub-2451759148839947/7085147045';
+const PRODUCTION_IOS_AD_UNIT = 'ca-app-pub-2451759148839947/8107006133';
 
-const adUnitId = __DEV__
-  ? TEST_BANNER_AD_UNIT
-    : Platform.OS === 'ios'
+const adUnitId = Platform.OS === 'ios'
     ? PRODUCTION_IOS_AD_UNIT
     : PRODUCTION_ANDROID_AD_UNIT;
 
@@ -42,7 +40,7 @@ export const AdModal: React.FC<AdModalProps> = ({ visible, onClose }) => {
 
   useEffect(() => {
     if (visible) {
-      // Auto-close after 15 seconds
+      //Auto-close after 15 seconds
       const timer = setTimeout(() => {
         onClose();
       }, 15000);

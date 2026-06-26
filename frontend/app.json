@@ -42,13 +42,20 @@
       [
         "react-native-google-mobile-ads",
         {
-          "androidAppId": "ca-app-pub-2187562362262001~2918828481",
-          "iosAppId": "ca-app-pub-2187562362262001~5963642266"
+          "androidAppId": "ca-app-pub-2451759148839947~8454069038",
+          "iosAppId": "ca-app-pub-2451759148839947~1218164156"
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "684dccb3-6951-4e98-8125-8c6776754a4c"
+      }
     }
   }
 }
