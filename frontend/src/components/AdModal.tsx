@@ -18,13 +18,14 @@ import {
 
 // Google's official test Banner Ad Unit ID
 // Always returns test ads and is safe for development
-const TEST_BANNER_AD_UNIT = 'ca-app-pub-3940256099942544/6300978111';
+// const TEST_BANNER_AD_UNIT = 'ca-app-pub-3940256099942544/6300978111';
 
 // Replace this with your actual Android AdMob unit ID once approved
 const PRODUCTION_ANDROID_AD_UNIT = 'ca-app-pub-2451759148839947/7085147045';
 const PRODUCTION_IOS_AD_UNIT = 'ca-app-pub-2451759148839947/8107006133';
 
-const adUnitId = Platform.OS === 'ios'
+const adUnitId = __DEV__ ? TestIds.BANNER
+: Platform.OS === 'ios'
     ? PRODUCTION_IOS_AD_UNIT
     : PRODUCTION_ANDROID_AD_UNIT;
 
@@ -40,10 +41,10 @@ export const AdModal: React.FC<AdModalProps> = ({ visible, onClose }) => {
 
   useEffect(() => {
     if (visible) {
-      //Auto-close after 15 seconds
+      //Auto-close after 35 seconds
       const timer = setTimeout(() => {
         onClose();
-      }, 15000);
+      }, 35000);
       return () => clearTimeout(timer);
     }
   }, [visible, onClose]);
@@ -81,7 +82,7 @@ export const AdModal: React.FC<AdModalProps> = ({ visible, onClose }) => {
                   unitId={adUnitId}
                   size={BannerAdSize.BANNER}
                   requestOptions={{
-                    requestNonPersonalizedAdsOnly: false,
+                    requestNonPersonalizedAdsOnly: true,
                   }}
                   onAdLoaded={() => {
                     console.log('Ad loaded successfully');
@@ -95,26 +96,7 @@ export const AdModal: React.FC<AdModalProps> = ({ visible, onClose }) => {
                 />
               )}
             </View>
-          ) : !adError ? (
-            // Fallback content for non-Android or if ad loading fails
-            <View style={styles.adContent}>
-              <MaterialCommunityIcons name="briefcase" size={64} color="#FFD700" />
-              <Text style={styles.adTitle}>Amazing Deals Await!</Text>
-              <Text style={styles.adDescription}>
-                Check out our exclusive offers and products
-              </Text>
-              <Text style={styles.adSubtext}>
-                Ad will close automatically in 5 seconds...
-              </Text>
-            </View>
           ) : null}
-
-          {/* CTA Button - Show for fallback content only */}
-          {(adError) && (
-            <Pressable style={styles.ctaButton}>
-              <Text style={styles.ctaButtonText}>Learn More</Text>
-            </Pressable>
-          )}
 
           {/* Skip Button */}
           <Pressable 
